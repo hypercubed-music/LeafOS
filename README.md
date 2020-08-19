@@ -1,7 +1,7 @@
 # LeafOS
 Standalone Arduino-compatible microcontroller development environment
 
-The OS allows you to program the board without the need for a PC. The programming language I'm using right now is Lua (from here: LuaArduino) but I might try to integrate some other languages like Forth or uLisp (circuitpython?).
+The "OS" (its more like a development environment) allows you to program the board without the need for a PC. The programming language I'm using right now is Lua (from here: LuaArduino) but I might try to integrate some other languages like Forth or uLisp (circuitpython?).
 
 Planned features:
 
