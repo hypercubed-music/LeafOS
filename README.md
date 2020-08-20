@@ -6,8 +6,8 @@ The "OS" (its more like a development environment) allows you to program the boa
 Planned features:
 
 - USB Keyboard input (done)
-- Terminal-like interface w/ horizontal and vertical scrolling (working on) (might release as separate library)
-- Lua interpreter (integrated but not fully featured yet; I would like to add Arduino functions like digitalWrite(), analogRead(), graphics, etc.)
+- Terminal-like interface w/ horizontal and vertical scrolling (done) (might release as separate library)
+- Lua interpreter (integrated but not fully featured yet; some Arduino functions are present)
 - Ability to load and run programs from an SD card
 - Shell-like command line
 - GUI for launching programs
