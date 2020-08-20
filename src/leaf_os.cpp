@@ -9,7 +9,7 @@
 #include <lua_include.h>
 //#include <lua/lapi.h>
 
-#define LUA_EXTRALIBS {"arduino", luaopen_arduino};
+//#define LUA_EXTRALIBS {"arduino", luaopen_arduino};
 
 Adafruit_ST7735 tft = Adafruit_ST7735(5, 9, 6);
 #if defined(EXTERNAL_FLASH_USE_QSPI)
@@ -125,39 +125,46 @@ class Terminal : public Print {
     size_t print(const String &s)
     {
       write(s.c_str(), s.length());
+      return 0;
     }
 
     size_t print(const char str[])
     {
       write(str);
+      return 0;
     }
 
     size_t print(char c)
     {
       write(c);
+      return 0;
     }
 
     size_t println(void)
     {
       write("\n");
+      return 0;
     }
 
     size_t println(const String &s)
     {
       print(s);
       println();
+      return 0;
     }
 
     size_t println(const char c[])
     {
       print(c);
       println();
+      return 0;
     }
 
     size_t println(char c)
     {
       print(c);
       println();
+      return 0;
     }
 
   private:
@@ -224,12 +231,15 @@ void setup() {
   term.println("Flash: ready");
   lua = new Lua;
   lua->setOut(&term);
+  luaopen_arduino(lua->getState());
   if (lua && lua->getState()) {
     lua->help();
   } else {
     term.println("Lua Failed To Allocate!");
   }
   drawTerm();
+  Serial.println(OUTPUT);
+  Serial.println(LED_BUILTIN);
 }
 
 void loop() {
