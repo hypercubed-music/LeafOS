@@ -8,7 +8,7 @@
 class Terminal : public Print {
   public:
     Terminal() {
-        memset(buffer, 0, sizeof(buffer)); //clear buffer
+      memset(buffer, 0, sizeof(buffer)); //clear buffer
     }
     
     size_t write(uint8_t a) {
@@ -127,7 +127,7 @@ class Terminal : public Print {
 
     void drawTerm(Adafruit_ST7735 tft_out) {
       tft_out.setCursor(0,0);
-      for (int i = screenY; i < screenY + 16; i++) {
+      for (unsigned int i = screenY; i < screenY + 16; i++) {
         if (!screenBuffer[i-screenY].equals(buffer[i])) {
           if (buffer[i].length() != 0) {
             screenBuffer[i-screenY] = buffer[i];
@@ -135,10 +135,29 @@ class Terminal : public Print {
           } else {
             tft_out.println("                     ");
           }
+          screenBuffer[i-screenY] = buffer[i];
         } else {
           tft_out.println();
         }
       }
+    }
+
+    void showTerm(Adafruit_ST7735 tft_out) {
+      tft_out.fillScreen(ST77XX_BLACK);
+      drawTerm(tft_out);
+    }
+
+    void hideTerm(Adafruit_ST7735 tft_out) {
+      tft_out.fillScreen(ST77XX_BLACK);
+    }
+
+    void clearTerm(Adafruit_ST7735 tft_out) {
+      memset(buffer, 0, sizeof(buffer)); //clear buffer
+      cursorX = 0;
+      cursorY = 0;
+      screenX = 0;
+      screenY = 0;
+      drawTerm(tft_out);
     }
   private:
     String buffer[2048];
