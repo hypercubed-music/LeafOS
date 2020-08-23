@@ -1,29 +1,20 @@
-#include <Arduino.h>
-#include <Wire.h>
-#include <LuaArduino.h>
-#include <Adafruit_GFX.h>    // Core graphics library
-#include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
-#include <SdFat.h>
-#include <Adafruit_SPIFlash.h>
-#include <SPI.h>
-#include <lua_arduino.h>
-#include <Terminal.h>
+#include <leaf_os.h>
 
-Adafruit_ST7735 tft = Adafruit_ST7735(5, 9, 6);
-#if defined(EXTERNAL_FLASH_USE_QSPI)
-  Adafruit_FlashTransport_QSPI flashTransport;
-#elif defined(EXTERNAL_FLASH_USE_SPI)
-  Adafruit_FlashTransport_SPI flashTransport(EXTERNAL_FLASH_USE_CS, EXTERNAL_FLASH_USE_SPI);
-#else
-  #error No QSPI/SPI flash are defined on your board variant.h !
-#endif
-
-Adafruit_SPIFlash flash(&flashTransport);
-FatFileSystem fatfs;
-Lua* lua;
 String inputBuffer;
 long millisTimer;
 char inByte;
+
+enum {
+  MODE_TERM,
+  MODE_LUA_TERM_IDLE,
+  MODE_LUA_TERM_RUN,
+  MODE_LUA_TERM_INIT,
+  MODE_GUI_INIT,
+  MODE_GUI,
+  MODE_LUA_RUNFILE,
+
+} mode;
+int currentMode = MODE_LUA_TERM_INIT;
 
 byte kbd_to_ascii(byte key) {
   switch(key) {
@@ -39,10 +30,6 @@ byte kbd_to_ascii(byte key) {
   }
   return key;
 }
-
-
-
-Terminal term = Terminal();
 
 void setup() {
   asm(".global _printf_float");
@@ -67,9 +54,11 @@ void setup() {
     while(1);
   }
   term.println("Flash: ready");
+  // Start Lua
   lua = new Lua;
   lua->setOut(&term);
-  luaopen_arduino(lua->getState());
+  luaopen_graphics(lua->getState());
+  lua_sethook(lua->getState(), interruptHook, LUA_MASKCOUNT, 100);
   if (lua && lua->getState()) {
     lua->help();
   } else {
@@ -81,14 +70,20 @@ void setup() {
 }
 
 void loop() {
-  while(1) {
-    inputBuffer = "";
-    term.print(">");
-    term.drawTerm(tft);
-    while(inByte != 4) {
+  switch (currentMode) {
+    case MODE_LUA_TERM_INIT:
+      inByte = 0;
+      inputBuffer = "";
+      term.print(">");
+      term.drawTerm(tft);
+      currentMode = MODE_LUA_TERM_IDLE;
+      break;
+    case MODE_LUA_TERM_IDLE:
       if (Serial1.available() > 0) {
         inByte = Serial1.read();
-        if (!(kbd_to_ascii(inByte) == '\b' && inputBuffer.length() == 0) && inByte != 4) {
+        if (inByte == 4) {
+          currentMode = MODE_LUA_TERM_RUN;
+        } else if (!(kbd_to_ascii(inByte) == '\b' && inputBuffer.length() == 0)) {
           term.write((char)kbd_to_ascii(inByte));
           if (inByte == 8 || inByte == 127) {
             inputBuffer.remove(inputBuffer.length() - 1);
@@ -98,10 +93,14 @@ void loop() {
         }
         term.drawTerm(tft);
       }
-    }
-    term.println();
-    inByte = 0;
-    lua->loadString(inputBuffer);
+      break;
+    case MODE_LUA_TERM_RUN:
+      term.println();
+      lua->loadString(inputBuffer);
+      currentMode = MODE_LUA_TERM_INIT;
+      break;
+    case MODE_GUI_INIT:
+      term.hideTerm(tft);
+
   }
-  delay(50);
 }
