@@ -53,7 +53,16 @@ void Lua::initState() {
   "HIGH = 1\n"
   "INPUT = 0\n"
   "OUTPUT = 1\n"
-  "INPUT_PULLUP = 2\n";
+  "INPUT_PULLUP = 2\n"
+  "BLACK = 0\n"
+  "WHITE = 65535\n"
+  "RED = 63488\n"
+  "GREEN = 2016\n"
+  "BLUE = 31\n"
+  "CYAN = 2047\n"
+  "MAGENTA = 63519\n"
+  "YELLOW = 65504\n"
+  "ORANGE = 64512\n";
   loadString(arduino_vars);
 
 }
@@ -142,8 +151,8 @@ extern "C" {
     //return lua_temp_stdio_file.ferror();
   }
 
-  void lua_compat_print(const char *s){
+  /*void lua_compat_print(const char *s){
     Lua::getOut()->print(s);
-  }
+  }*/
 
 }
