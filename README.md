@@ -13,3 +13,6 @@ Planned features:
 - GUI for launching programs
 - WiFi co-processor for downloading files (maybe a really basic web browser)
 - Basic text editor
+
+Right now it runs on the Adafruit Feather M4 Express, with a trinket M0 running a usb coprocessor (https://github.com/gdsports/usbhostcopro),
+and a 3.5 inch screen (Adafruit 2050)
